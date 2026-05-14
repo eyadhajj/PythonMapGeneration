@@ -4,8 +4,8 @@ import colorama
 wall = (2, colorama.Fore.BLUE) 
 ground = (1, colorama.Fore.YELLOW, colorama.Back.LIGHTGREEN_EX)
 void = (0, colorama.Fore.LIGHTMAGENTA_EX, colorama.Back.RED)
-start = (3, colorama.Fore.WHITE, colorama.Back.BLACK)
-end = (4, colorama.Fore.WHITE, colorama.Back.BLACK)
+start = ("S", colorama.Fore.GREEN, colorama.Back.BLACK)
+end = ("E", colorama.Fore.GREEN, colorama.Back.BLACK)
 
 path  = (5, colorama.Fore.GREEN, colorama.Back.CYAN)
 
@@ -47,6 +47,37 @@ def add_ground_tiles(map, num_tiles):
     
     return map
 
+def add_start_and_end(map):
+    width = len(map[0])
+    height = len(map)
+    
+    all_ground = [(x, y) for y in range(height) for x in range(width) if map[y][x] == ground]
+    start_x, start_y = rd.choice(all_ground)
+    map[start_y][start_x] = start
+
+    possible_end_positions = []
+    min_distance = (width + height) // 2
+
+    for y in range(height):
+        for x in range(width):
+            if map[y][x] == ground:
+                distance = abs(x - start_x) + abs(y - start_y)
+                if distance >= min_distance:
+                    possible_end_positions.append((x, y))
+
+    if possible_end_positions:
+        end_x, end_y = rd.choice(possible_end_positions)
+        map[end_y][end_x] = end
+    else:
+        all_ground = [(x, y) for y in range(height) for x in range(width) if map[y][x] == ground]
+        end_x, end_y = max(
+            all_ground, 
+            key=lambda pos: abs(pos[0] - start_x) + abs(pos[1] - start_y)
+        )
+        map[end_y][end_x] = end
+
+    return map
+
 def add_wall_tiles(map):
     width = len(map[0])
     height = len(map)
@@ -69,9 +100,10 @@ def add_wall_tiles(map):
     
     return map
 
-maps = create_empty_map(10, 10)
+maps = create_empty_map(15, 15)
 add_ground_tiles(maps, 40)
 add_wall_tiles(maps)
+add_start_and_end(maps)
 
 # print the map and add colors
 for row in maps:
