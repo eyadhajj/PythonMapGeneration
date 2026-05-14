@@ -4,8 +4,14 @@ import colorama
 wall = (2, colorama.Fore.BLUE) 
 ground = (1, colorama.Fore.YELLOW, colorama.Back.LIGHTGREEN_EX)
 void = (0, colorama.Fore.LIGHTMAGENTA_EX, colorama.Back.RED)
+start = (3, colorama.Fore.WHITE, colorama.Back.BLACK)
+end = (4, colorama.Fore.WHITE, colorama.Back.BLACK)
+
+path  = (5, colorama.Fore.GREEN, colorama.Back.CYAN)
 
 colorama.init()
+
+
 
 def create_empty_map(width, height):
     return [[void] * width for _ in range(height)]
@@ -14,17 +20,30 @@ def add_ground_tiles(map, num_tiles):
     width = len(map[0])
     height = len(map)
     
-    for y in range(height):
-        for x in range(width):
-            map[y][x] = void
-    
+    center_x = width // 2
+    center_y = height // 2
+
+    directions = [
+        (0, 1), 
+        (1, 0), 
+        (0, -1), 
+        (-1, 0)
+        ]  # down, right, up, left
+
     chosen_tiles = set()
+
     while len(chosen_tiles) < num_tiles:
-        x = rd.randint(0, width - 1)
-        y = rd.randint(0, height - 1)
-        if (x, y) not in chosen_tiles:
-            chosen_tiles.add((x, y))
-            map[y][x] = ground  
+        
+        map[center_y][center_x] = ground
+        chosen_tiles.add((center_x, center_y))
+
+        dir_x, dir_y = rd.choice(directions)
+        center_x += dir_x
+        center_y += dir_y
+        
+        center_x = max(0, min(center_x, width - 1))
+        center_y = max(0, min(center_y, height - 1))
+        
     
     return map
 
