@@ -100,6 +100,30 @@ def add_wall_tiles(map):
     
     return map
 
+def get_neighbours(map, x, y):
+    neighbours = []
+
+    walkable = {ground, start, end}
+
+    width = len(map[0])
+    height = len(map)
+
+    directions = [
+        (0, 1), 
+        (1, 0), 
+        (0, -1), 
+        (-1, 0)
+    ]  # down, right, up, left
+    
+    for dir_x, dir_y in directions:
+        new_x = x + dir_x
+        new_y = y + dir_y
+
+        if 0 <= new_x < width and 0 <= new_y < height:
+            if map[new_y][new_x] in walkable:
+                neighbours.append((new_x, new_y))
+
+    return neighbours
 maps = create_empty_map(15, 15)
 add_ground_tiles(maps, 40)
 add_wall_tiles(maps)
@@ -110,3 +134,5 @@ for row in maps:
     for tile in row:
         print(tile[1] + str(tile[0]), end=' ')
     print()
+
+
