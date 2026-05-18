@@ -1,12 +1,15 @@
 import random as rd
 import colorama 
 
+import time
+import os
+
 wall = (2, colorama.Fore.BLUE) 
 ground = (1, colorama.Fore.YELLOW, colorama.Back.LIGHTGREEN_EX)
 void = (0, colorama.Fore.LIGHTMAGENTA_EX, colorama.Back.RED)
 start = ("S", colorama.Fore.GREEN, colorama.Back.BLACK)
 end = ("E", colorama.Fore.GREEN, colorama.Back.BLACK)
-
+explored = ("*", colorama.Fore.WHITE, colorama.Back.BLUE)
 path  = (5, colorama.Fore.GREEN, colorama.Back.CYAN)
 
 colorama.init()
@@ -76,7 +79,7 @@ def add_start_and_end(map):
         )
         map[end_y][end_x] = end
 
-    return map
+    return map, (start_x, start_y), (end_x, end_y)
 
 def add_wall_tiles(map):
     width = len(map[0])
@@ -103,7 +106,7 @@ def add_wall_tiles(map):
 def get_neighbours(map, x, y):
     neighbours = []
 
-    walkable = {ground, start, end}
+    walkable = {ground, start, end, explored}
 
     width = len(map[0])
     height = len(map)
@@ -124,15 +127,57 @@ def get_neighbours(map, x, y):
                 neighbours.append((new_x, new_y))
 
     return neighbours
-maps = create_empty_map(15, 15)
+
+def breadth_first_search(map, start_pos, end_pos):
+    queue = [start_pos]
+    visited = {start_pos}
+
+    while queue:
+        current_pos = queue.pop(0)
+        x, y = current_pos
+
+        if map[y][x] != start and map[y][x] != end:
+            map[y][x] = explored
+
+        os.system("cls" if os.name == "nt" else "clear")
+        print_map(map)
+        time.sleep(0.1)
+
+        if current_pos == end_pos:
+            return True
+
+        neighbours = get_neighbours(map, x, y)
+
+        for neighbour in neighbours:
+            if neighbour not in visited:
+                visited.add(neighbour)
+                queue.append(neighbour)
+
+    return False
+
+maps = create_empty_map(10, 10)
 add_ground_tiles(maps, 40)
 add_wall_tiles(maps)
-add_start_and_end(maps)
+maps, start_pos, end_pos = add_start_and_end(maps)
+
+print("Start:", start_pos)
+print("End:", end_pos)
+print("Start neighbours:", get_neighbours(maps, start_pos[0], start_pos[1]))
 
 # print the map and add colors
-for row in maps:
-    for tile in row:
-        print(tile[1] + str(tile[0]), end=' ')
-    print()
+# for row in maps:
+#     for tile in row:
+#         print(tile[1] + str(tile[0]), end=' ')
+#     print()
 
+def print_map(map):
+    for row in map:
+        for tile in row:
+            print(tile[1] + str(tile[0]), end=' ')
+        print()
 
+print_map(maps)
+
+print("Start:", start_pos)
+print("End:", end_pos)
+print("Can reach end using BFS?: ", breadth_first_search(maps, start_pos, end_pos))
